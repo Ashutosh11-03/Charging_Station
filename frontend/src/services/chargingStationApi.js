@@ -1,9 +1,8 @@
 import axios from 'axios';
-
-const API_URL = 'http://localhost:5000/api';
+import config from '../config';
 
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: `${config.apiUrl}/api`,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -17,6 +16,15 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+// Add response interceptor for error handling
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    console.error('API Error:', error.response?.data || error.message);
+    throw error.response?.data?.error || 'Network error occurred';
+  }
+);
 
 export const getAllStations = async (filters = {}) => {
   try {
